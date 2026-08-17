@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { guides, navGroups } from '../data/site-content.js';
+import { withBase } from '../utils/paths.js';
 
 const groups = navGroups.map((group) => ({
   ...group,
@@ -12,7 +13,7 @@ const statusLabel = (confidence) => confidence === 'Needs verification' ? 'Test 
 <BaseLayout title="Sandustry Guides" description="All Sandustry Guide pages grouped by beginner route, resources, buildings, mechanics, platform, mods, and maps." canonical="/guides">
   <section class="listing-shell">
     <div class="listing-head">
-      <div class="breadcrumb"><a href="/">Home</a><span>/</span><span>Guides</span></div>
+      <div class="breadcrumb"><a href={withBase('/')}>Home</a><span>/</span><span>Guides</span></div>
       <h1>Sandustry Guides</h1>
       <p>Every first-release page in one place, grouped by what the player is trying to solve.</p>
     </div>
@@ -26,7 +27,7 @@ const statusLabel = (confidence) => confidence === 'Needs verification' ? 'Test 
         </div>
         <div class="card-grid">
           {group.guides.map((guide) => (
-            <a class="guide-card" href={guide.slug}>
+            <a class="guide-card" href={withBase(guide.slug)}>
               {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
               <h3>{guide.title}</h3>
               <p>{guide.summary}</p>

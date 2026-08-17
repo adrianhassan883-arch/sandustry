@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { guides } from '../data/site-content.js';
+import { withBase } from '../utils/paths.js';
 
 const platformGuides = guides.filter((guide) => guide.category === 'Platform');
 const statusLabel = (confidence) => confidence === 'Needs verification' ? 'Test in save' : confidence === 'Medium' ? 'Community route' : '';
@@ -9,7 +10,7 @@ const statusLabel = (confidence) => confidence === 'Needs verification' ? 'Test 
 <BaseLayout title="Sandustry Platform Guides" description="Current Sandustry Game Pass, Steam, Xbox app, and multiplayer status pages." canonical="/platform">
   <section class="listing-shell group-shell">
     <div class="listing-head">
-      <div class="breadcrumb"><a href="/">Home</a><span>/</span><span>Platform</span></div>
+      <div class="breadcrumb"><a href={withBase('/')}>Home</a><span>/</span><span>Platform</span></div>
       <h1>Sandustry Platform Guides</h1>
       <p>Current platform answers should use store pages and official release information, not creator videos or old screenshots.</p>
     </div>
@@ -25,7 +26,7 @@ const statusLabel = (confidence) => confidence === 'Needs verification' ? 'Test 
     </div>
     <div class="card-grid">
       {platformGuides.map((guide) => (
-        <a class="guide-card" href={guide.slug}>
+        <a class="guide-card" href={withBase(guide.slug)}>
           {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
           <h3>{guide.title}</h3>
           <p>{guide.summary}</p>

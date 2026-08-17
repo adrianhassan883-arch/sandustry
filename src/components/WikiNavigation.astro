@@ -1,5 +1,6 @@
 ---
 import { navGroups } from '../data/site-content.js';
+import { withBase } from '../utils/paths.js';
 
 const { current = '' } = Astro.props;
 ---
@@ -8,7 +9,7 @@ const { current = '' } = Astro.props;
   <strong>Guide Map</strong>
   <div class="wiki-nav-list">
     {navGroups.map((group) => (
-      <a class={current === group.slug ? 'active' : ''} href={group.slug}>
+      <a class={current === group.slug ? 'active' : ''} href={withBase(group.slug)}>
         <span>{group.title}</span>
         <em>{group.items.length}</em>
       </a>

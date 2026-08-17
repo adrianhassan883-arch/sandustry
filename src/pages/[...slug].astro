@@ -7,6 +7,7 @@ import { guides, guideMap } from '../data/site-content.js';
 import { richContent } from '../data/rich-content.js';
 import { pageEnhancements } from '../data/page-enhancements.js';
 import { getManual } from '../data/field-manual.js';
+import { absoluteUrl, withBase } from '../utils/paths.js';
 
 export function getStaticPaths() {
   return guides.map((guide) => ({
@@ -50,7 +51,7 @@ const typeLabel =
         : layoutKind === 'platform'
           ? 'Current Status'
       : 'Guide Route';
-const canonicalUrl = `https://sandustryguide.wiki${guide.slug}`;
+const canonicalUrl = absoluteUrl(guide.slug);
 const structuredData = [
   {
     '@context': 'https://schema.org',
@@ -63,14 +64,14 @@ const structuredData = [
     author: {
       '@type': 'Organization',
       name: 'Sandustry Guide',
-      url: 'https://sandustryguide.wiki',
+      url: absoluteUrl('/'),
     },
     publisher: {
       '@type': 'Organization',
       name: 'Sandustry Guide',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://sandustryguide.wiki/android-chrome-512x512.png',
+        url: absoluteUrl('/android-chrome-512x512.png'),
       },
     },
     mainEntityOfPage: canonicalUrl,
@@ -94,7 +95,7 @@ const structuredData = [
   <article class={`article-shell article-layout-${layoutKind}`}>
     <div class="article-content">
       <header class="article-header">
-        <div class="breadcrumb"><a href="/">Home</a><span>/</span><a href="/guides">Guides</a><span>/</span><span>{guide.title}</span></div>
+        <div class="breadcrumb"><a href={withBase('/')}>Home</a><span>/</span><a href={withBase('/guides')}>Guides</a><span>/</span><span>{guide.title}</span></div>
         <h1>{guide.title}</h1>
         <p>{guide.summary}</p>
         <div class="meta-row">
@@ -343,7 +344,7 @@ const structuredData = [
       <div class="related-box">
         <strong>Related Guides</strong>
         {relatedGuides.map((item) => (
-          <a href={item.slug}>{item.title}</a>
+          <a href={withBase(item.slug)}>{item.title}</a>
         ))}
       </div>
 

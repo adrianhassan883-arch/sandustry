@@ -1,10 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { guides, site } from '../data/site-content.js';
+import { withBase } from '../utils/paths.js';
 
 const searchIndex = guides.map((guide) => ({
   title: guide.title,
-  slug: guide.slug,
+  slug: withBase(guide.slug),
   category: guide.category,
   summary: guide.summary,
   keywords: guide.keywords,
@@ -15,7 +16,7 @@ const searchIndex = guides.map((guide) => ({
 <BaseLayout title="Search Sandustry Guide" description="Search Sandustry guides by resource, building, mechanic, platform, mod, map, or beginner problem." canonical="/search">
   <section class="listing-shell search-page">
     <div class="listing-head">
-      <div class="breadcrumb"><a href="/">Home</a><span>/</span><span>Search</span></div>
+      <div class="breadcrumb"><a href={withBase('/')}>Home</a><span>/</span><span>Search</span></div>
       <h1>Search Sandustry Guide</h1>
       <p>Find pages by problem: water leaks, lava movement, Kinetic Press jams, Game Pass, mods, maps, or first-session routes.</p>
     </div>
@@ -28,7 +29,7 @@ const searchIndex = guides.map((guide) => ({
 
     <div class="card-grid search-page-results" data-page-results>
       {guides.map((guide) => (
-        <a class="guide-card" href={guide.slug}>
+        <a class="guide-card" href={withBase(guide.slug)}>
           <h3>{guide.title}</h3>
           <p>{guide.summary}</p>
           <div class="meta-row">

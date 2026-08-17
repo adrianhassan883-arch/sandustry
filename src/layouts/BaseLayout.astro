@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { site, navGroups, guides } from '../data/site-content.js';
 import { Search } from '@lucide/astro';
+import { absoluteUrl, withBase } from '../utils/paths.js';
 
 const {
   title = site.name,
@@ -11,10 +12,10 @@ const {
   structuredData = undefined,
 } = Astro.props;
 
-const canonicalUrl = `https://${site.domain}${canonical}`;
+const canonicalUrl = absoluteUrl(canonical);
 const searchIndex = guides.map((guide) => ({
   title: guide.title,
-  slug: guide.slug,
+  slug: withBase(guide.slug),
   category: guide.category,
   summary: guide.summary,
   keywords: guide.keywords,
@@ -29,19 +30,19 @@ const searchIndex = guides.map((guide) => ({
     <title>{title === site.name ? title : `${title} | ${site.name}`}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
-    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="/android-chrome-192x192.png" type="image/png" sizes="192x192" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href={withBase('/favicon.ico')} sizes="any" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={withBase('/favicon-16x16.png')} type="image/png" sizes="16x16" />
+    <link rel="icon" href={withBase('/favicon-32x32.png')} type="image/png" sizes="32x32" />
+    <link rel="icon" href={withBase('/android-chrome-192x192.png')} type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
+    <link rel="manifest" href={withBase('/site.webmanifest')} />
     <meta property="og:type" content={pageType} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content={site.name} />
-    <meta property="og:image" content={`https://${site.domain}/android-chrome-512x512.png`} />
+    <meta property="og:image" content={absoluteUrl('/android-chrome-512x512.png')} />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -51,7 +52,7 @@ const searchIndex = guides.map((guide) => ({
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header" data-header>
-      <a class="brand" href="/" aria-label="Sandustry Guide home">
+      <a class="brand" href={withBase('/')} aria-label="Sandustry Guide home">
         <span class="brand-mark" aria-hidden="true"></span>
         <span>
           <strong>Sandustry Guide</strong>
@@ -59,14 +60,14 @@ const searchIndex = guides.map((guide) => ({
         </span>
       </a>
       <nav class="main-nav" aria-label="Primary navigation">
-        <a href="/guides">Guides</a>
-        <a href="/wiki">Wiki</a>
-        <a href="/resources">Resources</a>
-        <a href="/buildings">Buildings</a>
-        <a href="/mechanics">Mechanics</a>
-        <a href="/mods">Mods</a>
+        <a href={withBase('/guides')}>Guides</a>
+        <a href={withBase('/wiki')}>Wiki</a>
+        <a href={withBase('/resources')}>Resources</a>
+        <a href={withBase('/buildings')}>Buildings</a>
+        <a href={withBase('/mechanics')}>Mechanics</a>
+        <a href={withBase('/mods')}>Mods</a>
       </nav>
-      <a class="search-toggle" href="/search" data-open-search>
+      <a class="search-toggle" href={withBase('/search')} data-open-search>
         <Search size={16} aria-hidden="true" />
         Search
       </a>
@@ -92,7 +93,7 @@ const searchIndex = guides.map((guide) => ({
       </div>
       <div class="footer-grid">
         {navGroups.map((group) => (
-          <a href={group.slug}>{group.title}</a>
+          <a href={withBase(group.slug)}>{group.title}</a>
         ))}
         <a href="https://sandustry.com/">Official site</a>
       </div>

@@ -3,5 +3,6 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://sandustryguide.wiki',
+  site: 'https://adrianhassan883-arch.github.io',
+  base: '/sandustry',
 });

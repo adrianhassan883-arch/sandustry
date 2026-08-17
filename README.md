@@ -21,4 +21,4 @@ The static site builds to `dist/`.
 
 This repository includes `.github/workflows/deploy.yml`. After the project is pushed to GitHub, enable GitHub Pages with **Source: GitHub Actions**. Every push to `main` will validate content, build the Astro site, upload `dist`, and deploy it.
 
-`public/CNAME` sets the custom domain to `sandustryguide.wiki`. After deployment, point the domain DNS to GitHub Pages and confirm the custom domain in the repository Pages settings.
+The current GitHub Pages URL is `https://adrianhassan883-arch.github.io/sandustry/`. Add a `public/CNAME` file later only after the custom domain DNS is ready.

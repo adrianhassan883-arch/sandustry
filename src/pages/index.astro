@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site, guides, guideMap, navGroups, popularGuides, quickStart } from '../data/site-content.js';
+import { absoluteUrl, withBase } from '../utils/paths.js';
 
 const popular = popularGuides.map((slug) => guideMap.get(slug)).filter(Boolean);
 const resourceCards = guides.filter((guide) => guide.category === 'Resource').slice(0, 5);
@@ -12,11 +13,11 @@ const homeStructuredData = [
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: site.name,
-    url: `https://${site.domain}/`,
+    url: absoluteUrl('/'),
     description: site.description,
     potentialAction: {
       '@type': 'SearchAction',
-      target: `https://${site.domain}/search?q={search_term_string}`,
+      target: `${absoluteUrl('/search')}?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
     },
   },
@@ -45,8 +46,8 @@ const homeStructuredData = [
       <h1><span>Sandustry</span> Guide</h1>
       <p>{site.description}</p>
       <div class="hero-actions">
-        <a class="button" href="/guides/beginner-guide">Start the Beginner Guide</a>
-        <a class="button secondary" href="/wiki">Open the Wiki Index</a>
+        <a class="button" href={withBase('/guides/beginner-guide')}>Start the Beginner Guide</a>
+        <a class="button secondary" href={withBase('/wiki')}>Open the Wiki Index</a>
       </div>
       <div class="signal-strip" aria-label="Site facts">
         <div><strong>Fan-made</strong><span>independent guide</span></div>
@@ -81,7 +82,7 @@ const homeStructuredData = [
 
   <nav class="pixel-dock" aria-label="Quick wiki navigation">
     {navGroups.map((group) => (
-      <a href={group.slug}>
+      <a href={withBase(group.slug)}>
         <span>{group.title}</span>
         <em>{group.items.length} guides</em>
       </a>
@@ -104,11 +105,11 @@ const homeStructuredData = [
         <h2>Quick Start</h2>
         <p>Open these first when the factory starts producing Gold, leaking Water, or clogging byproducts.</p>
       </div>
-      <a class="button secondary" href="/guides">All guides</a>
+      <a class="button secondary" href={withBase('/guides')}>All guides</a>
     </div>
     <div class="card-grid four">
       {quickStart.map((item) => (
-        <a class="quick-card" href={item.href}>
+        <a class="quick-card" href={withBase(item.href)}>
           <span class="step">{item.step}</span>
           <h3>{item.title}</h3>
           <p>{item.text}</p>
@@ -125,17 +126,17 @@ const homeStructuredData = [
       </div>
     </div>
     <div class="route-board">
-      <a href="/resources/water">
+      <a href={withBase('/resources/water')}>
         <span>Water</span>
         <strong>Steam -> rain -> captured supply</strong>
           <p>Official mechanic basis, blueprint still needs testing.</p>
       </a>
-      <a href="/mechanics/how-to-move-lava">
+      <a href={withBase('/mechanics/how-to-move-lava')}>
         <span>Lava</span>
         <strong>Lava -> Scoria -> Cinders -> Lava</strong>
         <p>Move the transportable intermediate, not loose Lava.</p>
       </a>
-      <a href="/buildings/kinetic-slag-press">
+      <a href={withBase('/buildings/kinetic-slag-press')}>
         <span>Press</span>
         <strong>Burned input -> 25+ block drop -> output</strong>
         <p>Height and top cleanup decide whether it jams.</p>
@@ -149,11 +150,11 @@ const homeStructuredData = [
         <h2>Popular Guides</h2>
         <p>Start here if you are stuck, lost, flooded, or trying to scale too early.</p>
       </div>
-      <a class="button secondary" href="/wiki">Browse index</a>
+      <a class="button secondary" href={withBase('/wiki')}>Browse index</a>
     </div>
     <div class="card-grid">
       {popular.map((guide) => (
-        <a class="guide-card" href={guide.slug}>
+        <a class="guide-card" href={withBase(guide.slug)}>
           {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
           <h3>{guide.title}</h3>
           <p>{guide.summary}</p>
@@ -175,7 +176,7 @@ const homeStructuredData = [
     </div>
     <div class="card-grid">
       {resourceCards.map((guide) => (
-        <a class="guide-card" href={guide.slug}>
+        <a class="guide-card" href={withBase(guide.slug)}>
           {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
           <h3>{guide.title}</h3>
           <p>{guide.shortAnswer}</p>
@@ -193,7 +194,7 @@ const homeStructuredData = [
     </div>
     <div class="card-grid four">
       {buildingCards.map((guide) => (
-        <a class="guide-card" href={guide.slug}>
+        <a class="guide-card" href={withBase(guide.slug)}>
           {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
           <h3>{guide.title}</h3>
           <p>{guide.summary}</p>
@@ -211,7 +212,7 @@ const homeStructuredData = [
     </div>
     <div class="card-grid four">
       {mechanicCards.map((guide) => (
-        <a class="guide-card" href={guide.slug}>
+        <a class="guide-card" href={withBase(guide.slug)}>
           {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
           <h3>{guide.title}</h3>
           <p>{guide.shortAnswer}</p>
@@ -229,7 +230,7 @@ const homeStructuredData = [
     </div>
     <div class="card-grid">
       {navGroups.map((group) => (
-        <a class="category-card" href={group.slug}>
+        <a class="category-card" href={withBase(group.slug)}>
           <h3>{group.title}</h3>
           <p>{group.description}</p>
           <div class="meta-row">
