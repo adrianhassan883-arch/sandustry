@@ -1,0 +1,362 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DataTable from '../components/DataTable.astro';
+import FlowDiagram from '../components/FlowDiagram.astro';
+import WikiNavigation from '../components/WikiNavigation.astro';
+import { guides, guideMap } from '../data/site-content.js';
+import { richContent } from '../data/rich-content.js';
+import { pageEnhancements } from '../data/page-enhancements.js';
+import { getManual } from '../data/field-manual.js';
+
+export function getStaticPaths() {
+  return guides.map((guide) => ({
+    params: { slug: guide.slug.replace(/^\//, '') },
+    props: { guide },
+  }));
+}
+
+const { guide } = Astro.props;
+const relatedGuides = guide.related.map((slug) => guideMap.get(slug)).filter(Boolean);
+const rich = richContent[guide.slug];
+const enhancement = pageEnhancements[guide.slug];
+const manual = getManual(guide.slug);
+const anchor = (value) => value.toLowerCase().replaceAll(' ', '-').replaceAll('/', '');
+const layoutKind =
+  guide.category === 'Resource'
+    ? 'resource'
+    : guide.category === 'Building'
+      ? 'building'
+      : guide.category === 'Mechanic'
+        ? 'mechanic'
+        : guide.category === 'Platform'
+          ? 'platform'
+          : guide.category === 'Community'
+            ? 'community'
+            : guide.category === 'Index'
+              ? 'index'
+              : 'guide';
+const statusLabel = guide.confidence === 'Needs verification' ? 'Test in save' : guide.confidence === 'Medium' ? 'Community route' : '';
+const showStatus = Boolean(statusLabel);
+const caveatText = showStatus ? (guide.notes?.[0] ?? enhancement?.notice) : '';
+const primaryTable = rich.tables?.[0];
+const remainingTables = rich.tables?.slice(1) ?? [];
+const typeLabel =
+  layoutKind === 'resource'
+    ? 'Resource Map'
+    : layoutKind === 'building'
+      ? 'Machine Layout'
+      : layoutKind === 'mechanic'
+        ? 'Walkthrough'
+        : layoutKind === 'platform'
+          ? 'Current Status'
+      : 'Guide Route';
+const canonicalUrl = `https://sandustryguide.wiki${guide.slug}`;
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: guide.title,
+    description: guide.summary,
+    url: canonicalUrl,
+    dateModified: guide.updated,
+    isAccessibleForFree: true,
+    author: {
+      '@type': 'Organization',
+      name: 'Sandustry Guide',
+      url: 'https://sandustryguide.wiki',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Sandustry Guide',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://sandustryguide.wiki/android-chrome-512x512.png',
+      },
+    },
+    mainEntityOfPage: canonicalUrl,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: guide.faq.map(([question, answer]) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: answer,
+      },
+    })),
+  },
+];
+---
+
+<BaseLayout title={guide.title} description={guide.summary} canonical={guide.slug} pageType="article" structuredData={structuredData}>
+  <article class={`article-shell article-layout-${layoutKind}`}>
+    <div class="article-content">
+      <header class="article-header">
+        <div class="breadcrumb"><a href="/">Home</a><span>/</span><a href="/guides">Guides</a><span>/</span><span>{guide.title}</span></div>
+        <h1>{guide.title}</h1>
+        <p>{guide.summary}</p>
+        <div class="meta-row">
+          <span class="tag">Updated {guide.updated}</span>
+          <span class="tag">{guide.category}</span>
+          <span class="tag">{guide.readingTime}</span>
+          {showStatus && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel}</span>}
+        </div>
+      </header>
+
+      <div class={`answer-box answer-box-${layoutKind}`}>
+        <strong>Short answer</strong>
+        <p>{guide.shortAnswer}</p>
+      </div>
+
+      {caveatText && (
+        <p class="caveat-strip">
+          <strong>{guide.confidence === 'Needs verification' ? 'Test in save' : 'Early Access note'}</strong>
+          <span>{caveatText}</span>
+        </p>
+      )}
+
+      <section class={`article-section field-manual field-manual-${layoutKind}`} id="field-manual">
+        <div>
+          <h2>{layoutKind === 'resource' ? 'Use this page when' : layoutKind === 'building' ? 'Before you build' : layoutKind === 'mechanic' ? 'Run this check first' : 'Player checklist'}</h2>
+          <ul>
+            {manual.useWhen.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+        <div>
+          <h3>{layoutKind === 'mechanic' ? 'Pre-checks' : 'Avoid this'}</h3>
+          <ul>
+            {(layoutKind === 'mechanic' ? manual.preChecks : manual.mistakes).map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </section>
+
+      {layoutKind === 'resource' && (
+        <>
+          <section class="article-section resource-atlas" id="route-panel">
+            <div class="diagram-copy">
+              <h2>{enhancement.diagram.title}</h2>
+              <p>{enhancement.diagram.caption}</p>
+              <FlowDiagram diagram={enhancement.diagram} tone="resource" />
+            </div>
+            <div class="atlas-facts">
+              <h2>Quick facts</h2>
+              <div class="fact-grid single">
+                {rich.quickFacts.map(([label, value]) => (
+                  <div class="fact-card">
+                    <strong>{label}</strong>
+                    <span>{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {primaryTable && (
+            <section class="article-section table-section" id="interactions">
+              <h2>{primaryTable.title}</h2>
+              <DataTable table={primaryTable} />
+            </section>
+          )}
+        </>
+      )}
+
+      {layoutKind === 'building' && (
+        <>
+          <section class="article-section machine-panel" id="route-panel">
+            <div>
+              <h2>{enhancement.diagram.title}</h2>
+              <p>{enhancement.diagram.caption}</p>
+              <FlowDiagram diagram={enhancement.diagram} tone="building" />
+            </div>
+            {primaryTable && (
+              <div class="machine-table">
+                <h2>{primaryTable.title}</h2>
+                <DataTable table={primaryTable} />
+              </div>
+            )}
+          </section>
+
+          <section class="article-section sequence-section" id="build-sequence">
+            <h2>Build sequence</h2>
+            <ol class="step-list">
+              {rich.steps.map((step) => <li>{step}</li>)}
+            </ol>
+          </section>
+        </>
+      )}
+
+      {layoutKind === 'mechanic' && (
+        <>
+          <section class="article-section mechanic-runbook" id="route-panel">
+            <h2>Walkthrough</h2>
+            <ol class="step-list large">
+              {rich.steps.map((step) => <li>{step}</li>)}
+            </ol>
+          </section>
+
+          {enhancement?.diagram && (
+            <section class="article-section diagram-section compact-diagram" id="visual-flow">
+              <h2>{enhancement.diagram.title}</h2>
+              <p>{enhancement.diagram.caption}</p>
+              <FlowDiagram diagram={enhancement.diagram} tone="mechanic" />
+            </section>
+          )}
+
+          <section class="article-section" id="quick-facts">
+            <h2>Quick facts</h2>
+            <div class="fact-grid">
+              {rich.quickFacts.map(([label, value]) => (
+                <div class="fact-card">
+                  <strong>{label}</strong>
+                  <span>{value}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+
+      {layoutKind === 'platform' && (
+        <>
+          <section class="article-section platform-status" id="route-panel">
+            <h2>Current status</h2>
+            <div class="fact-grid">
+              {rich.quickFacts.map(([label, value]) => (
+                <div class="fact-card">
+                  <strong>{label}</strong>
+                  <span>{value}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {primaryTable && (
+            <section class="article-section table-section">
+              <h2>{primaryTable.title}</h2>
+              <DataTable table={primaryTable} />
+            </section>
+          )}
+        </>
+      )}
+
+      {(layoutKind === 'guide' || layoutKind === 'community' || layoutKind === 'index') && (
+        <>
+          {enhancement?.diagram && (
+            <section class="article-section diagram-section" id="route-panel">
+              <div class="diagram-copy">
+                <h2>{enhancement.diagram.title}</h2>
+                <p>{enhancement.diagram.caption}</p>
+              </div>
+              <FlowDiagram diagram={enhancement.diagram} tone={layoutKind} />
+            </section>
+          )}
+
+          <section class="article-section" id="quick-facts">
+            <h2>Quick facts</h2>
+            <div class="fact-grid">
+              {rich.quickFacts.map(([label, value]) => (
+                <div class="fact-card">
+                  <strong>{label}</strong>
+                  <span>{value}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section class="article-section sequence-section">
+            <h2>Recommended route</h2>
+            <ol class="step-list">
+              {rich.steps.map((step) => <li>{step}</li>)}
+            </ol>
+          </section>
+        </>
+      )}
+
+      {guide.sections.map(([heading, body]) => (
+        <section class="article-section" id={anchor(heading)}>
+          <h2>{heading}</h2>
+          <p>{body}</p>
+        </section>
+      ))}
+
+      {enhancement?.deepSections?.map((section) => (
+        <section class="article-section deep-section">
+          <h2>{section.title}</h2>
+          {section.body.map((paragraph) => <p>{paragraph}</p>)}
+        </section>
+      ))}
+
+      {(layoutKind === 'resource' || layoutKind === 'platform') && rich.steps?.length > 0 && (
+        <section class="article-section sequence-section">
+          <h2>Recommended flow</h2>
+          <ol class="step-list">
+            {rich.steps.map((step) => <li>{step}</li>)}
+          </ol>
+        </section>
+      )}
+
+      {remainingTables.map((table) => (
+        <section class="article-section table-section">
+          <h2>{table.title}</h2>
+          <DataTable table={table} />
+        </section>
+      ))}
+
+      {layoutKind !== 'platform' && (
+        <section class="article-section split-section">
+          <h2>Do / Don't</h2>
+          <div class="split-list">
+            <div>
+              <h3>Do</h3>
+              <ul>
+                {rich.dos.map((item) => <li>{item}</li>)}
+              </ul>
+            </div>
+            <div>
+              <h3>Don't</h3>
+              <ul>
+                {rich.donts.map((item) => <li>{item}</li>)}
+              </ul>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section class="article-section">
+        <h2>FAQ</h2>
+        <div class="faq">
+          {guide.faq.map(([question, answer]) => (
+            <details>
+              <summary>{question}</summary>
+              <p>{answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </div>
+
+    <aside>
+      <WikiNavigation current={`/${guide.slug.split('/')[1]}`} />
+
+      <div class="related-box">
+        <strong>Related Guides</strong>
+        {relatedGuides.map((item) => (
+          <a href={item.slug}>{item.title}</a>
+        ))}
+      </div>
+
+      <nav class="toc" aria-label="Article contents">
+        <strong>On this page</strong>
+        <a href="#main">Summary</a>
+        <a href="#field-manual">Player checklist</a>
+        <a href="#route-panel">{typeLabel}</a>
+        {(layoutKind === 'mechanic' || layoutKind === 'guide' || layoutKind === 'community' || layoutKind === 'index') && <a href="#quick-facts">Quick facts</a>}
+        {guide.sections.map(([heading]) => (
+          <a href={`#${anchor(heading)}`}>{heading}</a>
+        ))}
+      </nav>
+    </aside>
+  </article>
+</BaseLayout>

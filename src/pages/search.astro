@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { guides, site } from '../data/site-content.js';
+
+const searchIndex = guides.map((guide) => ({
+  title: guide.title,
+  slug: guide.slug,
+  category: guide.category,
+  summary: guide.summary,
+  keywords: guide.keywords,
+  readingTime: guide.readingTime,
+}));
+---
+
+<BaseLayout title="Search Sandustry Guide" description="Search Sandustry guides by resource, building, mechanic, platform, mod, map, or beginner problem." canonical="/search">
+  <section class="listing-shell search-page">
+    <div class="listing-head">
+      <div class="breadcrumb"><a href="/">Home</a><span>/</span><span>Search</span></div>
+      <h1>Search Sandustry Guide</h1>
+      <p>Find pages by problem: water leaks, lava movement, Kinetic Press jams, Game Pass, mods, maps, or first-session routes.</p>
+    </div>
+
+    <div class="search-page-box">
+      <label for="guide-search">Search guides</label>
+      <input id="guide-search" type="search" placeholder="Try infinite water, lava, planter box, haulers, Game Pass" autocomplete="off" data-page-search />
+      <p data-search-count>{guides.length} guide pages indexed.</p>
+    </div>
+
+    <div class="card-grid search-page-results" data-page-results>
+      {guides.map((guide) => (
+        <a class="guide-card" href={guide.slug}>
+          <h3>{guide.title}</h3>
+          <p>{guide.summary}</p>
+          <div class="meta-row">
+            <span class="tag">{guide.category}</span>
+            <span class="tag">{guide.readingTime}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <script define:vars={{ searchIndex }}>
+    const input = document.querySelector('[data-page-search]');
+    const results = document.querySelector('[data-page-results]');
+    const count = document.querySelector('[data-search-count]');
+    const params = new URLSearchParams(window.location.search);
+
+    const render = (query = '') => {
+      const q = query.trim().toLowerCase();
+      const matches = searchIndex.filter((guide) => {
+        const haystack = [guide.title, guide.summary, guide.category, ...guide.keywords].join(' ').toLowerCase();
+        return !q || haystack.includes(q);
+      });
+
+      results.innerHTML = matches.length
+        ? matches
+            .map((guide) => `<a class="guide-card" href="${guide.slug}"><h3>${guide.title}</h3><p>${guide.summary}</p><div class="meta-row"><span class="tag">${guide.category}</span><span class="tag">${guide.readingTime}</span></div></a>`)
+            .join('')
+        : '<div class="empty-state"><strong>No matching guide yet</strong><p>Try a broader term like water, lava, press, planter, maps, mods, haulers, or Game Pass.</p></div>';
+      count.textContent = `${matches.length} result${matches.length === 1 ? '' : 's'}${q ? ` for "${query.trim()}"` : ' indexed'}.`;
+    };
+
+    const initial = params.get('q') ?? '';
+    input.value = initial;
+    render(initial);
+
+    input.addEventListener('input', (event) => {
+      const query = event.target.value;
+      const url = new URL(window.location.href);
+      if (query.trim()) {
+        url.searchParams.set('q', query.trim());
+      } else {
+        url.searchParams.delete('q');
+      }
+      window.history.replaceState({}, '', url);
+      render(query);
+    });
+  </script>
+</BaseLayout>

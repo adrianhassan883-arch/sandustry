@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { guides, navGroups } from '../data/site-content.js';
+
+const groups = navGroups.map((group) => ({
+  ...group,
+  guides: group.items.map((slug) => guides.find((guide) => guide.slug === slug)).filter(Boolean),
+}));
+const statusLabel = (confidence) => confidence === 'Needs verification' ? 'Test in save' : confidence === 'Medium' ? 'Community route' : '';
+---
+
+<BaseLayout title="Sandustry Guides" description="All Sandustry Guide pages grouped by beginner route, resources, buildings, mechanics, platform, mods, and maps." canonical="/guides">
+  <section class="listing-shell">
+    <div class="listing-head">
+      <div class="breadcrumb"><a href="/">Home</a><span>/</span><span>Guides</span></div>
+      <h1>Sandustry Guides</h1>
+      <p>Every first-release page in one place, grouped by what the player is trying to solve.</p>
+    </div>
+    {groups.map((group) => (
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>{group.title}</h2>
+            <p>{group.description}</p>
+          </div>
+        </div>
+        <div class="card-grid">
+          {group.guides.map((guide) => (
+            <a class="guide-card" href={guide.slug}>
+              {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
+              <h3>{guide.title}</h3>
+              <p>{guide.summary}</p>
+              <div class="meta-row">
+                <span class="tag">{guide.category}</span>
+                <span class="tag">{guide.readingTime}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+  </section>
+</BaseLayout>

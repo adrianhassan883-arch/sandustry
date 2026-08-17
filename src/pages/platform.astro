@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { guides } from '../data/site-content.js';
+
+const platformGuides = guides.filter((guide) => guide.category === 'Platform');
+const statusLabel = (confidence) => confidence === 'Needs verification' ? 'Test in save' : confidence === 'Medium' ? 'Community route' : '';
+---
+
+<BaseLayout title="Sandustry Platform Guides" description="Current Sandustry Game Pass, Steam, Xbox app, and multiplayer status pages." canonical="/platform">
+  <section class="listing-shell group-shell">
+    <div class="listing-head">
+      <div class="breadcrumb"><a href="/">Home</a><span>/</span><span>Platform</span></div>
+      <h1>Sandustry Platform Guides</h1>
+      <p>Current platform answers should use store pages and official release information, not creator videos or old screenshots.</p>
+    </div>
+    <div class="group-intro">
+      <div>
+        <strong>Fast answer</strong>
+        <p>Use these pages for Game Pass, Steam/Xbox app comparison, and current single-player evidence.</p>
+      </div>
+      <div>
+        <strong>Update rule</strong>
+        <p>Platform availability can change, so these pages should be rechecked after major Early Access or Game Preview updates.</p>
+      </div>
+    </div>
+    <div class="card-grid">
+      {platformGuides.map((guide) => (
+        <a class="guide-card" href={guide.slug}>
+          {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
+          <h3>{guide.title}</h3>
+          <p>{guide.summary}</p>
+          <div class="meta-row">
+            <span class="tag">{guide.category}</span>
+            <span class="tag">{guide.readingTime}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

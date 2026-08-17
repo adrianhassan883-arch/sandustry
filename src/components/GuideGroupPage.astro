@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { guides, navGroups } from '../data/site-content.js';
+
+const { groupKey, title, description, canonical } = Astro.props;
+const group = navGroups.find((item) => item.title === groupKey);
+const groupGuides = group?.items.map((slug) => guides.find((guide) => guide.slug === slug)).filter(Boolean) ?? [];
+const adjacentGroups = navGroups.filter((item) => item.title !== groupKey);
+const statusLabel = (confidence) => confidence === 'Needs verification' ? 'Test in save' : confidence === 'Medium' ? 'Community route' : '';
+const groupPitch = {
+  Start: ['Best first click', 'Open the beginner guide if you are in a new save; open Tips if your current line already runs but keeps jamming.'],
+  Resources: ['Most common problem', 'Water and Lava look like simple liquids, but both become routing systems. Start with the page matching the material that escaped containment.'],
+  Buildings: ['Best first build', 'Start with the Kinetic Slag Press if byproducts are clogging, or Processing Line if you need a full early factory route.'],
+  Mechanics: ['Fastest fix path', 'Pick the page that matches the symptom: water shortage, Lava transport, Crackstone gate, or unwanted Haulers.'],
+  Community: ['Use with caution', 'Mods and maps can change resource availability. Keep vanilla factory advice separate from community layouts.'],
+};
+const [pitchTitle, pitchText] = groupPitch[groupKey] ?? ['Best next step', 'Start with the page that matches your current bottleneck, then use related guides at the end of each article.'];
+---
+
+<BaseLayout title={title} description={description} canonical={canonical}>
+  <section class="listing-shell group-shell">
+    <div class="listing-head">
+      <div class="breadcrumb"><a href="/">Home</a><span>/</span><span>{groupKey}</span></div>
+      <h1>{title}</h1>
+      <p>{description}</p>
+    </div>
+
+    <div class="group-intro">
+      <div>
+        <strong>Guide route</strong>
+        <p>{group?.description}</p>
+      </div>
+      <div>
+        <strong>{pitchTitle}</strong>
+        <p>{pitchText}</p>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      {groupGuides.map((guide) => (
+        <a class="guide-card" href={guide.slug}>
+          {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
+          <h3>{guide.title}</h3>
+          <p>{guide.summary}</p>
+          <div class="meta-row">
+            <span class="tag">{guide.category}</span>
+            <span class="tag">{guide.readingTime}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Browse Nearby</h2>
+          <p>Jump to another part of the guide when the current topic touches resources, buildings, mechanics, or community content.</p>
+        </div>
+      </div>
+      <div class="card-grid">
+        {adjacentGroups.map((item) => (
+          <a class="category-card" href={item.slug}>
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
+            <div class="meta-row"><span class="tag">{item.items.length} entries</span></div>
+          </a>
+        ))}
+      </div>
+    </section>
+  </section>
+</BaseLayout>

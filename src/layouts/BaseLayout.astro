@@ -1,0 +1,148 @@
+---
+import '../styles/global.css';
+import { site, navGroups, guides } from '../data/site-content.js';
+import { Search } from '@lucide/astro';
+
+const {
+  title = site.name,
+  description = site.description,
+  canonical = '/',
+  pageType = 'website',
+  structuredData = undefined,
+} = Astro.props;
+
+const canonicalUrl = `https://${site.domain}${canonical}`;
+const searchIndex = guides.map((guide) => ({
+  title: guide.title,
+  slug: guide.slug,
+  category: guide.category,
+  summary: guide.summary,
+  keywords: guide.keywords,
+}));
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title === site.name ? title : `${title} | ${site.name}`}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/android-chrome-192x192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta property="og:type" content={pageType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:image" content={`https://${site.domain}/android-chrome-512x512.png`} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="theme-color" content="#020509" />
+    {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Sandustry Guide home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>
+          <strong>Sandustry Guide</strong>
+          <small>fan-made wiki</small>
+        </span>
+      </a>
+      <nav class="main-nav" aria-label="Primary navigation">
+        <a href="/guides">Guides</a>
+        <a href="/wiki">Wiki</a>
+        <a href="/resources">Resources</a>
+        <a href="/buildings">Buildings</a>
+        <a href="/mechanics">Mechanics</a>
+        <a href="/mods">Mods</a>
+      </nav>
+      <a class="search-toggle" href="/search" data-open-search>
+        <Search size={16} aria-hidden="true" />
+        Search
+      </a>
+    </header>
+
+    <div class="search-panel" data-search-panel hidden>
+      <div class="search-shell">
+        <label for="site-search">Search Sandustry Guide</label>
+        <input id="site-search" type="search" placeholder="Try water, lava, Game Pass, Kinetic Slag Press" data-search-input />
+        <div class="search-results" data-search-results></div>
+        <button type="button" data-close-search>Close</button>
+      </div>
+    </div>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>{site.name}</strong>
+        <p>Independent fan-made Sandustry guide. Not affiliated with Lantto Games or Hooded Horse.</p>
+      </div>
+      <div class="footer-grid">
+        {navGroups.map((group) => (
+          <a href={group.slug}>{group.title}</a>
+        ))}
+        <a href="https://sandustry.com/">Official site</a>
+      </div>
+      <p class="footer-note">Updated {site.updated}. Early Access and Game Preview details can change; platform pages should be rechecked after major updates.</p>
+    </footer>
+
+    <script define:vars={{ searchIndex }}>
+      const panel = document.querySelector('[data-search-panel]');
+      const input = document.querySelector('[data-search-input]');
+      const results = document.querySelector('[data-search-results]');
+      const open = document.querySelector('[data-open-search]');
+      const close = document.querySelector('[data-close-search]');
+
+      const render = (query = '') => {
+        const q = query.trim().toLowerCase();
+        const matches = searchIndex
+          .filter((guide) => {
+            const haystack = [guide.title, guide.summary, guide.category, ...guide.keywords].join(' ').toLowerCase();
+            return !q || haystack.includes(q);
+          })
+          .slice(0, 8);
+
+        results.innerHTML = matches.length
+          ? matches
+              .map((guide) => `<a href="${guide.slug}"><strong>${guide.title}</strong><span>${guide.category} · ${guide.summary}</span></a>`)
+              .join('')
+          : '<p class="search-empty">No guide found yet. Try water, lava, press, planter, mods, maps, or Game Pass.</p>';
+      };
+
+      open?.addEventListener('click', (event) => {
+        event.preventDefault();
+        panel.hidden = false;
+        render('');
+        input?.focus();
+      });
+      close?.addEventListener('click', () => {
+        panel.hidden = true;
+      });
+      input?.addEventListener('input', (event) => render(event.target.value));
+      document.addEventListener('keydown', (event) => {
+        if (event.key === '/' && document.activeElement !== input) {
+          event.preventDefault();
+          panel.hidden = false;
+          render('');
+          input?.focus();
+        }
+        if (event.key === 'Escape') {
+          panel.hidden = true;
+        }
+      });
+    </script>
+  </body>
+</html>

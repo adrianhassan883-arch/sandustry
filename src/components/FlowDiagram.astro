@@ -1,0 +1,13 @@
+---
+const { diagram, tone = 'default' } = Astro.props;
+---
+
+<div class={`flow-diagram flow-diagram-${tone}`} aria-label={diagram.title}>
+  {diagram.nodes.map(([label, detail], index) => (
+    <div class="flow-node">
+      <span class="node-index">{String(index + 1).padStart(2, '0')}</span>
+      <strong>{label}</strong>
+      <p>{detail}</p>
+    </div>
+  ))}
+</div>

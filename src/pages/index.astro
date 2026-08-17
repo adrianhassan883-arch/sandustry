@@ -1,0 +1,265 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site, guides, guideMap, navGroups, popularGuides, quickStart } from '../data/site-content.js';
+
+const popular = popularGuides.map((slug) => guideMap.get(slug)).filter(Boolean);
+const resourceCards = guides.filter((guide) => guide.category === 'Resource').slice(0, 5);
+const buildingCards = guides.filter((guide) => guide.category === 'Building').slice(0, 4);
+const mechanicCards = guides.filter((guide) => guide.category === 'Mechanic').slice(0, 4);
+const statusLabel = (confidence) => confidence === 'Needs verification' ? 'Test in save' : confidence === 'Medium' ? 'Community route' : '';
+const homeStructuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: site.name,
+    url: `https://${site.domain}/`,
+    description: site.description,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `https://${site.domain}/search?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      ['Is Sandustry Guide official?', 'No. This is an independent fan-made site focused on practical routes and current-build cautions.'],
+      ['Why do some pages mention testing?', 'Sandustry is Early Access/Game Preview, so layout-dependent tricks can change. Pages that need testing are labeled before the steps.'],
+      ['Can I use this while playing?', 'Yes. The pages are written answer-first: short answer, checklist, route, mistakes, related guides, and FAQ.'],
+    ].map(([question, answer]) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: answer,
+      },
+    })),
+  },
+];
+---
+
+<BaseLayout title="Sandustry Guide - Fan-Made Wiki and Beginner Strategy Hub" canonical="/" structuredData={homeStructuredData}>
+  <section class="hero">
+    <div class="hero-copy">
+      <h1><span>Sandustry</span> Guide</h1>
+      <p>{site.description}</p>
+      <div class="hero-actions">
+        <a class="button" href="/guides/beginner-guide">Start the Beginner Guide</a>
+        <a class="button secondary" href="/wiki">Open the Wiki Index</a>
+      </div>
+      <div class="signal-strip" aria-label="Site facts">
+        <div><strong>Fan-made</strong><span>independent guide</span></div>
+        <div><strong>Early Access</strong><span>current-build cautions</span></div>
+        <div><strong>20</strong><span>launch guides</span></div>
+        <div><strong>Fast routes</strong><span>answer-first pages</span></div>
+      </div>
+    </div>
+    <div class="hero-stack" aria-label="Sandustry Guide visual overview">
+      <div class="hero-lab">
+        <div class="lab-topline">
+          <span>Factory field manual</span>
+          <strong>20 practical guides</strong>
+        </div>
+        <a class="video-frame video-thumb" href={`https://www.youtube.com/watch?v=${site.videoId}`} target="_blank" rel="noreferrer">
+          <img src={`https://i.ytimg.com/vi/${site.videoId}/maxresdefault.jpg`} alt="Sandustry Release Date Trailer thumbnail" loading="eager" />
+          <span class="play-button">Watch trailer</span>
+        </a>
+        <div class="lab-flow">
+          <div><strong>Water</strong><span>Wet Sand</span></div>
+          <div><strong>Shaker</strong><span>Gold + residue</span></div>
+          <div><strong>Press</strong><span>height-gated</span></div>
+          <div><strong>Planter</strong><span>flower loop</span></div>
+        </div>
+        <div class="route-preview">
+          <strong>First useful route</strong>
+          <span>Beginner loop -> Water control -> Press setup -> Lava movement</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="pixel-dock" aria-label="Quick wiki navigation">
+    {navGroups.map((group) => (
+      <a href={group.slug}>
+        <span>{group.title}</span>
+        <em>{group.items.length} guides</em>
+      </a>
+    ))}
+  </nav>
+
+  <div class="pixel-marquee" aria-label="Popular Sandustry topics">
+    <span>Water</span>
+    <span>Wet Sand</span>
+    <span>Lava</span>
+    <span>Kinetic Press</span>
+    <span>Planter Box</span>
+    <span>Mods</span>
+    <span>Game Pass</span>
+  </div>
+
+  <section class="section band">
+    <div class="section-head">
+      <div>
+        <h2>Quick Start</h2>
+        <p>Open these first when the factory starts producing Gold, leaking Water, or clogging byproducts.</p>
+      </div>
+      <a class="button secondary" href="/guides">All guides</a>
+    </div>
+    <div class="card-grid four">
+      {quickStart.map((item) => (
+        <a class="quick-card" href={item.href}>
+          <span class="step">{item.step}</span>
+          <h3>{item.title}</h3>
+          <p>{item.text}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section process-map">
+    <div class="section-head">
+      <div>
+        <h2>Production Routes</h2>
+        <p>Problem routes shown as factory logic, not long paragraphs.</p>
+      </div>
+    </div>
+    <div class="route-board">
+      <a href="/resources/water">
+        <span>Water</span>
+        <strong>Steam -> rain -> captured supply</strong>
+          <p>Official mechanic basis, blueprint still needs testing.</p>
+      </a>
+      <a href="/mechanics/how-to-move-lava">
+        <span>Lava</span>
+        <strong>Lava -> Scoria -> Cinders -> Lava</strong>
+        <p>Move the transportable intermediate, not loose Lava.</p>
+      </a>
+      <a href="/buildings/kinetic-slag-press">
+        <span>Press</span>
+        <strong>Burned input -> 25+ block drop -> output</strong>
+        <p>Height and top cleanup decide whether it jams.</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Popular Guides</h2>
+        <p>Start here if you are stuck, lost, flooded, or trying to scale too early.</p>
+      </div>
+      <a class="button secondary" href="/wiki">Browse index</a>
+    </div>
+    <div class="card-grid">
+      {popular.map((guide) => (
+        <a class="guide-card" href={guide.slug}>
+          {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
+          <h3>{guide.title}</h3>
+          <p>{guide.summary}</p>
+          <div class="meta-row">
+            <span class="tag">{guide.category}</span>
+            <span class="tag">{guide.readingTime}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section band">
+    <div class="section-head">
+      <div>
+        <h2>Resources</h2>
+        <p>Water, Lava, Copper, Fluxite, and Artifacts organized around what each material does in a factory.</p>
+      </div>
+    </div>
+    <div class="card-grid">
+      {resourceCards.map((guide) => (
+        <a class="guide-card" href={guide.slug}>
+          {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
+          <h3>{guide.title}</h3>
+          <p>{guide.shortAnswer}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Buildings</h2>
+        <p>Production structures and player search terms normalized into clear build pages.</p>
+      </div>
+    </div>
+    <div class="card-grid four">
+      {buildingCards.map((guide) => (
+        <a class="guide-card" href={guide.slug}>
+          {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
+          <h3>{guide.title}</h3>
+          <p>{guide.summary}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section band">
+    <div class="section-head">
+      <div>
+        <h2>Mechanics</h2>
+        <p>Direct answers for the searches players make when a factory stops behaving.</p>
+      </div>
+    </div>
+    <div class="card-grid four">
+      {mechanicCards.map((guide) => (
+        <a class="guide-card" href={guide.slug}>
+          {statusLabel(guide.confidence) && <span class={`confidence ${guide.confidence.toLowerCase().replaceAll(' ', '-')}`}>{statusLabel(guide.confidence)}</span>}
+          <h3>{guide.title}</h3>
+          <p>{guide.shortAnswer}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Wiki Structure</h2>
+        <p>Jump by problem type instead of guessing which article has the answer.</p>
+      </div>
+    </div>
+    <div class="card-grid">
+      {navGroups.map((group) => (
+        <a class="category-card" href={group.slug}>
+          <h3>{group.title}</h3>
+          <p>{group.description}</p>
+          <div class="meta-row">
+            <span class="tag">{group.items.length} entries</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section band">
+    <div class="section-head">
+      <div>
+        <h2>FAQ</h2>
+        <p>Short answers for the questions players ask before trusting a fan-made guide.</p>
+      </div>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>Is Sandustry Guide official?</summary>
+        <p>No. This is an independent fan-made site focused on practical routes and current-build cautions.</p>
+      </details>
+      <details>
+        <summary>Why do some pages mention testing?</summary>
+        <p>Sandustry is Early Access/Game Preview, so layout-dependent tricks can change. Pages that need testing are labeled before the steps.</p>
+      </details>
+      <details>
+        <summary>Can I use this while playing?</summary>
+        <p>Yes. The pages are written answer-first: short answer, checklist, route, mistakes, related guides, and FAQ.</p>
+      </details>
+    </div>
+  </section>
+</BaseLayout>
