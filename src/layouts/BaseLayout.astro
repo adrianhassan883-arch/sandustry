@@ -47,6 +47,13 @@ const searchIndex = guides.map((guide) => ({
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="theme-color" content="#020509" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CK3VCQFB8V"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-CK3VCQFB8V');
+    </script>
     {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
   </head>
   <body>
