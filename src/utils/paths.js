@@ -1,5 +1,5 @@
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
-const origin = 'https://adrianhassan883-arch.github.io';
+const origin = 'https://sandustryguide.wiki';
 
 export function withBase(path = '/') {
   if (!path || path === '/') {
